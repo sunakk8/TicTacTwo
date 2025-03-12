@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocketIO Client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Flask-SocketIO Client</h1>
+    <div>
+        <p>Your Socket ID: <span id="socket-id">Loading...</span></p>
+    </div>
+
+    <script>
+        // Connect to the Flask SocketIO server
+        const socket = io('http://localhost:5000');  // Replace with your server's address if needed
+
+        // Listen for the "connect" event
+        socket.on('connect', () => {
+            console.log('Successfully connected to the server!');
+        });
+
+        socket.on('socket_id', (data) => {
+            const socketIdElement = document.getElementById('socket-id');
+            socketIdElement.textContent = data.socket_id;  // Display the socket ID on the page
+        });
+        
+        // Listen for the "disconnect" event
+        socket.on('disconnect', () => {
+            console.log('Disconnected from the server!');
+        });
+    </script>
+</body>
+</html>
