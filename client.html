@@ -17,6 +17,7 @@
     <script>    
         // Connect to the Flask SocketIO server
         const socket = io('http://localhost:5000');
+        let thisUser = -1;
 
         // Listen for the "connect" event
         socket.on('connect', () => {
@@ -24,19 +25,16 @@
         });
 
         socket.on('player_connected', (data) => {
-            updatePlayers(data.players);
-            userText = document.createElement("span");
-            console.log(data.user);
-            userText.textContent = " (You)";
-            if (data.user == 1) {
-                targetElement = document.getElementById("player-1");
-            }
-            else {
-                targetElement = document.getElementById("player-2");
-            }
-            console.log(userText); 
-            targetElement.appendChild(userText);
 
+            updatePlayers(data.players);
+
+            userText = document.createElement("span");
+            userText.textContent = " (You)";
+            if (thisUser == -1) {
+                thisUser = data.user;
+            }
+            targetElement = document.getElementById("player-" + (thisUser + 1));
+            targetElement.appendChild(userText);
         });
 
         // Listen for the "disconnect" event

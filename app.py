@@ -23,13 +23,13 @@ def handle_connect():
         user = 0
         if (players[0] == None):
             players[0] = request.sid 
-            user = 1
+            user = 0
             print("Player 1 Connected")
 
         elif (players[1] == None):
             players[1] = request.sid
             print("Player 2 Connected")
-            user = 2
+            user = 1
 
         player_count += 1
         print(players)
