@@ -43,13 +43,16 @@ def handle_connect():
 def handle_disconnect():
     global player_count
     player_count -= 1
+    user = -1
     if request.sid == players[0]:
+        user = 0
         players[0] = None
 
     elif request.sid == players[1]:
+        user = 1
         players[1] = None
 
-    emit("player_disconnected", {"players": players}, broadcast=True)
+    emit("player_disconnected", {"players": players, "user": user}, broadcast=True)
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
