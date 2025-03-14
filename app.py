@@ -10,7 +10,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 players = [None, None]
 player_count = 0
-
+board = []
 @app.route('/')
 def index():
     return "Flask SocketIO server is running"
@@ -35,9 +35,17 @@ def handle_connect():
         print(players)
         emit("player_connected", {"players": players, "user": user}, broadcast=True)
 
+        if player_count == 2:
+            init()
+
     else:
         emit("room_full", {"message": "Game is full. Try again later."})
         print("A user tried to connect, but the game is full.")
+
+def init():
+    global board
+    board = [[' ' for _ in range(3)] for _ in range(3)]
+    emit("init_game", {"board": board}, broadcast=True)
 
 @socketio.on("disconnect")
 def handle_disconnect():
