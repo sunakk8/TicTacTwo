@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SocketIO Client</title>
+    <title>TicTacTwo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 </head>
 <body>
-    <h1>Flask-SocketIO Client</h1>
+    <h1>TicTacTwo</h1>
     <div>
         <p id="player-1">Player 1: Loading...</p>
         <p id="player-2">Player 2: Loading...</p>
         <p><span id="full"></span></p>
+        <p id="game-status">Waiting for all players...</p>
     </div>
 
     <script>    
         // Connect to the Flask SocketIO server
         const socket = io('http://localhost:5000');
         let thisUser = -1;
+        let p1Connected = false;
+        let p2Connected = false;
 
         // Listen for the "connect" event
         socket.on('connect', () => {
@@ -45,24 +48,40 @@
         socket.on('player_disconnected', (data) => {
             updatePlayers(data.players);
         });
+
         socket.on('room_full', (data) => {
             fullElement = document.getElementById("full");
             fullElement.textContent = data.message;
         });
+        
+        socket.on('init_game', (data) => {
+            console.log("init received");
+            targetElement = document.getElementById("game-status");
+            targetElement.textContent = "Game Started";
+        });
+
         function updatePlayers(players) {
             player1Element = document.getElementById("player-1");
             player2Element = document.getElementById("player-2");
             if (players[0] == null) {
                 player1Element.textContent = "Player 1: Not Connected";
+                p1Connected = false;
             }
             else {
                 player1Element.textContent = "Player 1: Connected";
+                p1Connected = true;
             }
             if (players[1] == null) {
                 player2Element.textContent = "Player 2: Not Connected";
+                p2Connected = false;
             }
             else {
                 player2Element.textContent = "Player 2: Connected";
+                p2Connected = true;
+            }
+
+            if (!(p1Connected && p2Connected)) {
+                document.getElementById("game-status").textContent = "Waiting for all players...";
             }
         };
 
