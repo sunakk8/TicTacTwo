@@ -47,6 +47,52 @@ def init():
     board = [[' ' for _ in range(3)] for _ in range(3)]
     emit("init_game", {"board": board}, broadcast=True)
 
+    # start_game()
+
+def start_game():
+    while game_over() == ' ':
+        pass
+
+@socketio.on("user_moved")
+def process_move(data):
+    user = data["user"]
+    r,c = data["r"], data["c"]
+    legal = check_move(user, r, c)
+    if legal:
+        if user == 0:
+            board[r][c] = 'X'
+        else:
+            board[r][c] = 'O'
+        emit("move", {"board": board}, broadcast=True)
+    else:
+        emit("illegal_move")
+
+def check_move(user, r, c):
+    if board[r][c] != '':
+        return True
+    return False
+
+def game_over():
+    for row in board:
+        if row[0] != ' ' and (row[0] == row[1] == row[2]):
+            return row[0]
+
+    for col in range(3):
+        if board[0][col] != ' ' and (board[0][col] == board[1][col] == board[2][col]):
+            return board[0][col]
+
+    if board[0][0] != ' ' and (board[0][0] == board[1][1] == board[2][2]):
+        return board[0][0]
+
+    if board[0][2] != ' ' and (board[0][2] == board[1][1] == board[2][0]):
+        return board[0][2]
+    
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == ' ':
+                return ' '
+    return 'TIE'
+    
 @socketio.on("disconnect")
 def handle_disconnect():
     global player_count
