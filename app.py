@@ -11,6 +11,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 players = [None, None]
 player_count = 0
 board = []
+turn = 0
+
 @app.route('/')
 def index():
     return "Flask SocketIO server is running"
@@ -47,32 +49,45 @@ def init():
     board = [[' ' for _ in range(3)] for _ in range(3)]
     emit("init_game", {"board": board}, broadcast=True)
 
-    # start_game()
+    start_game()
 
 def start_game():
-    while game_over() == ' ':
-        pass
+    global turn
+    emit("your_turn", to=players[turn])
+
 
 @socketio.on("user_moved")
 def process_move(data):
+    print("user moved emitted")
+
+    global turn
     user = data["user"]
     r,c = data["r"], data["c"]
     legal = check_move(user, r, c)
+
     if legal:
         if user == 0:
             board[r][c] = 'X'
         else:
             board[r][c] = 'O'
+
         emit("move", {"board": board}, broadcast=True)
+        status = check_game_over()
+        if status != " ":
+            emit("game_over", {"status": status}, broadcast=True)
+        else:
+            turn = 1 - turn  # Switch turn
+            emit("your_turn", to=players[turn])  # Notify the next player
+
     else:
-        emit("illegal_move")
+        emit("illegal_move", to=players[user])
 
 def check_move(user, r, c):
-    if board[r][c] != '':
+    if board[r][c] == ' ':
         return True
     return False
 
-def game_over():
+def check_game_over():
     for row in board:
         if row[0] != ' ' and (row[0] == row[1] == row[2]):
             return row[0]
