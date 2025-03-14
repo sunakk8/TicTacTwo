@@ -17,6 +17,8 @@
         <table border="1">
             <tbody id="board"></tbody>
         </table>
+        <p id="prompt"></p>
+        <p id="winner"></p>
     </div>
 
     <script>    
@@ -25,6 +27,9 @@
         let thisUser = -1;
         let p1Connected = false;
         let p2Connected = false;
+        let waitingForMove = false;
+        let selection = [-1,-1];
+        let userChose = false;
 
         // Listen for the "connect" event
         socket.on('connect', () => {
@@ -64,8 +69,33 @@
             targetElement.textContent = "Game Started";
             updateBoard(data.board);
         });
+
+        socket.on('your_turn', () => {
+            userMove();            
+        });
+
         socket.on('move', (data) => {
             updateBoard(data.board);
+        });
+
+        socket.on('illegal_move', () => {
+            userMove();
+        });
+
+        socket.on('game_over', (data) => {
+            status = data.status;
+            targetElement = document.getElementById("winner");
+
+            if (status == 'X') {
+                targetElement.textContent = "Player 1 Is the Winner!";
+            }
+            else if (status == 'O') {
+                targetElement.textContent = "Player 2 Is the Winner!";
+            }
+            else {
+                targetElement.textContent = "TIE: No Winner!";
+            }
+            document.getElementById("prompt").textContent = "";
         })
 
         function updatePlayers(players) {
@@ -96,20 +126,73 @@
         function updateBoard(board) {
             const boardElement = document.getElementById("board");
             boardElement.innerHTML = "";
+
             for (let i = 0; i < 3; i++) {
                 const row = document.createElement("tr");
                 for (let j = 0; j < 3; j++) {
                     const cell = document.createElement("td");
-                    cell.textContent = board[i][j];
-                    cell.setAttribute("width", "100");  
-                    cell.setAttribute("height", "100"); 
-                    cell.setAttribute("align", "center"); 
-                    cell.setAttribute("valign", "middle");
+
+                    const button = document.createElement("button");
+                    button.textContent = board[i][j];
+                    button.setAttribute("data-row", i);
+                    button.setAttribute("data-col", j);
+                    button.onclick = () => handleClick(i, j);
+
+
+                    button.style.width = "100px";
+                    button.style.height = "100px";
+
+                    cell.appendChild(button);
                     row.appendChild(cell);
                 }
                 boardElement.appendChild(row);
             }
         };
+        
+        function handleClick(row, col) {
+            if (waitingForMove) {
+                selection[0] = row;
+                selection[1] = col;
+                userChose = true;
+                moveResolver();
+            }
+        }
+
+        function waitForUserMove() {
+            return new Promise(resolve => {
+                moveResolver = resolve;
+            });
+        }
+
+        async function userMove() {
+            let r = 0
+            let c = 0
+            waitingForMove = true;
+            promptUser(true);
+
+            await waitForUserMove();
+            r = selection[0];
+            c = selection[1];
+
+            waitingForMove = false;
+            promptUser(false);
+            selection[0] = -1;
+            selection[1] = -1;
+            userChose = false;
+
+            socket.emit('user_moved', {"user": thisUser, "r": r, "c": c});            
+        };
+
+        function promptUser(status) {
+            targetElement = document.getElementById("prompt");
+
+            if (status) {
+                targetElement.textContent = "Your turn: make a move.";
+            }
+            else {
+                targetElement.textContent = "Waiting for other player...";
+            }
+        }
     </script>
 </body>
 </html>
