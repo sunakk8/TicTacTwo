@@ -13,6 +13,10 @@
         <p id="player-2">Player 2: Loading...</p>
         <p><span id="full"></span></p>
         <p id="game-status">Waiting for all players...</p>
+
+        <table border="1">
+            <tbody id="board"></tbody>
+        </table>
     </div>
 
     <script>    
@@ -58,7 +62,11 @@
             console.log("init received");
             targetElement = document.getElementById("game-status");
             targetElement.textContent = "Game Started";
+            updateBoard(data.board);
         });
+        socket.on('move', (data) => {
+            updateBoard(data.board);
+        })
 
         function updatePlayers(players) {
             player1Element = document.getElementById("player-1");
@@ -85,6 +93,23 @@
             }
         };
 
+        function updateBoard(board) {
+            const boardElement = document.getElementById("board");
+            boardElement.innerHTML = "";
+            for (let i = 0; i < 3; i++) {
+                const row = document.createElement("tr");
+                for (let j = 0; j < 3; j++) {
+                    const cell = document.createElement("td");
+                    cell.textContent = board[i][j];
+                    cell.setAttribute("width", "100");  
+                    cell.setAttribute("height", "100"); 
+                    cell.setAttribute("align", "center"); 
+                    cell.setAttribute("valign", "middle");
+                    row.appendChild(cell);
+                }
+                boardElement.appendChild(row);
+            }
+        };
     </script>
 </body>
 </html>
