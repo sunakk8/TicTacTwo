@@ -32,7 +32,7 @@ pip install flask flask-socketio
 
 ## Running the Server
 ```bash
-python server.py
+python app.py
 ```
 The server will start on `http://localhost:5000`.
 
@@ -45,7 +45,7 @@ The server will start on `http://localhost:5000`.
 ## Folder Structure
 ```
 📁 TicTacTwo
-│── 📄 server.py        # Flask-SocketIO server
+│── 📄 app.py        # Flask-SocketIO server
 │── 📄 client.html      # Frontend UI for the game
 │── 📄 README.md        # Project documentation
 ```
