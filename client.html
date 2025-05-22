@@ -4,21 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TicTacTwo</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 </head>
 <body>
-    <h1>TicTacTwo</h1>
-    <div>
-        <p id="player-1">Player 1: Loading...</p>
-        <p id="player-2">Player 2: Loading...</p>
-        <p><span id="full"></span></p>
-        <p id="game-status">Waiting for all players...</p>
+    <div class="container py-4">
+        <h1>TicTacTwo</h1>
 
-        <table border="1">
-            <tbody id="board"></tbody>
-        </table>
-        <p id="prompt"></p>
-        <p id="winner"></p>
+        <div class="text-center mb-3">
+            <p id="player-1" class="fw-bold">Player 1: Loading...</p>
+            <p id="player-2" class="fw-bold">Player 2: Loading...</p>
+            <p><span id="full" class="text-danger"></span></p>
+            <p id="game-status" class="text-info">Waiting for all players...</p>
+        </div>
+
+        <div class="d-flex justify-content-center mb-3">
+            <table class="table table-bordered table-dark text-center align-middle" id="board">
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="text-center">
+            <p id="prompt" class="fs-5"></p>
+            <p id="winner" class="fs-4 text-warning"></p>
+        </div>
     </div>
 
     <script>    
@@ -137,10 +148,8 @@
                     button.setAttribute("data-row", i);
                     button.setAttribute("data-col", j);
                     button.onclick = () => handleClick(i, j);
+                    button.className = "game-cell";
 
-
-                    button.style.width = "100px";
-                    button.style.height = "100px";
 
                     cell.appendChild(button);
                     row.appendChild(cell);
